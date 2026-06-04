@@ -1,7 +1,14 @@
 import { PrismaClient } from '@prisma/client'
-import * as bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 const prisma = new PrismaClient()
+
+// Use the same PBKDF2 hashing as src/lib/crypto.ts
+function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex')
+  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex')
+  return `${salt}:${hash}`
+}
 
 async function main() {
   console.log('🌱 Seeding database...')
@@ -27,7 +34,7 @@ async function main() {
   console.log('✅ Created tenant:', tenant.name)
 
   // Create users
-  const passwordHash = await bcrypt.hash('password123', 10)
+  const passwordHash = hashPassword('password123')
 
   const owner = await prisma.user.upsert({
     where: { email: 'owner@mobilepos.com' },

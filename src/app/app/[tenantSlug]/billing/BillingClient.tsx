@@ -563,7 +563,7 @@ export default function BillingClient({
     if (!selectedInvoice) return ''
     const { invoiceNo, grandTotal, amountPaid: paid, customer, jobCard } = selectedInvoice
     const due = Math.max(0, parseFloat(grandTotal) - parseFloat(paid))
-    const tenantName = tenantSettings?.name || 'Orion POS'
+    const tenantName = tenantSettings?.name || 'Westerngate POS'
 
     let text = ''
     if (type === 'summary') {
@@ -572,7 +572,7 @@ export default function BillingClient({
       text = `Hello ${customer.name},\n\nThis is to update you that your device repair job *${jobCard?.jobNo || ''}* (${jobCard?.brand || ''} ${jobCard?.model || ''}) has been billed under Invoice *${invoiceNo}*. Current status is ready for delivery.\n\nThank you, *${tenantName}*!`
     } else {
       // PDF link sharing (mocked or custom url)
-      text = `Hello ${customer.name},\n\nYou can access/download your digital invoice *${invoiceNo}* at the following link:\n\nhttps://${tenantSlug}.orionpos.com/invoices/${selectedInvoice.id}\n\nThank you, *${tenantName}*!`
+      text = `Hello ${customer.name},\n\nYou can access/download your digital invoice *${invoiceNo}* at the following link:\n\nhttps://${tenantSlug}.westerngate.com/invoices/${selectedInvoice.id}\n\nThank you, *${tenantName}*!`
     }
     
     return encodeURIComponent(text)

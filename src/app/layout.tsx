@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Orion POS & Repair Management System',
+  title: 'Westerngate POS & Repair Management System',
   description: 'Enterprise-grade cloud-based billing and repair tracking POS for mobile phone shops.',
   manifest: '/manifest.json',
 }

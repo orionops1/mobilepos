@@ -16,7 +16,7 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // Pre-fill tenant from URL search query (e.g., ?tenant=orion)
+  // Pre-fill tenant from URL search query (e.g., ?tenant=demo-shop)
   useEffect(() => {
     const tenantParam = searchParams.get('tenant')
     if (tenantParam) {
@@ -74,7 +74,7 @@ function LoginForm() {
           <Store className="h-8 w-8 text-indigo-400" />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-white mb-2">
-          Welcome to Orion POS
+          Welcome to Westerngate POS
         </h1>
         <p className="text-sm text-slate-400">
           Login to access your mobile repair shop dashboard
@@ -101,12 +101,12 @@ function LoginForm() {
               required
               value={tenantSlug}
               onChange={(e) => setTenantSlug(e.target.value)}
-              placeholder="e.g. orion"
+              placeholder="e.g. demo-shop"
               className="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm"
             />
           </div>
           <p className="text-[10px] text-slate-500">
-            Enter your shop&apos;s unique URL identifier. Try <span className="text-indigo-400">orion</span> for demo.
+            Enter your shop&apos;s unique URL identifier. Try <span className="text-indigo-400">demo-shop</span> for demo.
           </p>
         </div>
 
@@ -122,7 +122,7 @@ function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. admin@orion.com"
+              placeholder="e.g. owner@mobilepos.com"
               className="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm"
             />
           </div>
@@ -147,7 +147,7 @@ function LoginForm() {
             />
           </div>
           <p className="text-[10px] text-slate-500">
-            Demo details: Owner: <span className="text-indigo-400">admin@orion.com</span> / Tech: <span className="text-indigo-400">tech@orion.com</span>. Pass: <span className="text-indigo-400">admin123</span>
+            Demo details: Owner: <span className="text-indigo-400">owner@mobilepos.com</span> / Manager: <span className="text-indigo-400">manager@mobilepos.com</span>. Pass: <span className="text-indigo-400">password123</span>
           </p>
         </div>
 
@@ -184,7 +184,7 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-8 text-center text-xs text-slate-500 z-10">
-        © 2026 Orion POS Systems. All rights reserved.
+        © 2026 Westerngate POS Systems. All rights reserved.
       </div>
     </div>
   )
