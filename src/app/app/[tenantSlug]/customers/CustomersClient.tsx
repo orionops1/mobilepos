@@ -367,7 +367,7 @@ export default function CustomersClient({ initialCustomers, tenantSlug }: Custom
                               <p className="text-[10px] text-slate-500 mt-0.5">{new Date(inv.createdAt).toLocaleDateString()}</p>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-white">₹{Number(inv.grandTotal).toFixed(0)}</p>
+                              <p className="font-bold text-white">Rs {Number(inv.grandTotal).toFixed(0)}</p>
                               <span className={`text-[8px] font-bold tracking-wider ${
                                 inv.status === 'PAID' ? 'text-emerald-400' : 'text-amber-400'
                               }`}>

@@ -314,9 +314,9 @@ export default function InventoryClient({
                         </div>
                       </td>
                       {!isTechnician && (
-                        <td className="p-4 font-bold text-slate-350">₹{parseFloat(item.purchaseCost).toFixed(0)}</td>
+                        <td className="p-4 font-bold text-slate-350">Rs {parseFloat(item.purchaseCost).toFixed(0)}</td>
                       )}
-                      <td className="p-4 font-bold text-white">₹{parseFloat(item.sellingPrice).toFixed(0)}</td>
+                      <td className="p-4 font-bold text-white">Rs {parseFloat(item.sellingPrice).toFixed(0)}</td>
                       {!isTechnician && (
                         <td className="p-4">
                           {item.supplierName ? (
@@ -439,7 +439,7 @@ export default function InventoryClient({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Supplier Purchase Cost (₹)</label>
+                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Supplier Purchase Cost (Rs )</label>
                   <input
                     type="number"
                     required
@@ -449,7 +449,7 @@ export default function InventoryClient({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Retail Selling Price (₹)</label>
+                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Retail Selling Price (Rs )</label>
                   <input
                     type="number"
                     required
@@ -565,7 +565,7 @@ export default function InventoryClient({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Supplier Purchase Cost (₹)</label>
+                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Supplier Purchase Cost (Rs )</label>
                   <input
                     type="number"
                     required
@@ -575,7 +575,7 @@ export default function InventoryClient({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Retail Selling Price (₹)</label>
+                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Retail Selling Price (Rs )</label>
                   <input
                     type="number"
                     required

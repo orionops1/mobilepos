@@ -362,7 +362,7 @@ export default function BillingClient({
     }
 
     const { invoiceNo, grandTotal, discount: disc, subtotal, taxAmount, taxRate: tRate, amountPaid: paid, status, customer, jobCard, items, tenant } = selectedInvoice
-    const currencySym = '₹'
+    const currencySym = 'Rs '
     const due = Math.max(0, parseFloat(grandTotal) - parseFloat(paid))
 
     // Build print HTML document dynamically
@@ -567,7 +567,7 @@ export default function BillingClient({
 
     let text = ''
     if (type === 'summary') {
-      text = `Hello ${customer.name},\n\nYour bill summary for Invoice *${invoiceNo}* at *${tenantName}* is here:\n\n*Total Amount:* ₹${parseFloat(grandTotal).toFixed(0)}\n*Paid:* ₹${parseFloat(paid).toFixed(0)}\n*Due Balance:* ₹${due.toFixed(0)}\n\nThank you for choosing us!`
+      text = `Hello ${customer.name},\n\nYour bill summary for Invoice *${invoiceNo}* at *${tenantName}* is here:\n\n*Total Amount:* Rs ${parseFloat(grandTotal).toFixed(0)}\n*Paid:* Rs ${parseFloat(paid).toFixed(0)}\n*Due Balance:* Rs ${due.toFixed(0)}\n\nThank you for choosing us!`
     } else if (type === 'status') {
       text = `Hello ${customer.name},\n\nThis is to update you that your device repair job *${jobCard?.jobNo || ''}* (${jobCard?.brand || ''} ${jobCard?.model || ''}) has been billed under Invoice *${invoiceNo}*. Current status is ready for delivery.\n\nThank you, *${tenantName}*!`
     } else {
@@ -750,12 +750,12 @@ export default function BillingClient({
                   <div className="flex sm:flex-col justify-between items-end border-t sm:border-t-0 border-slate-900 pt-3.5 sm:pt-0">
                     <div className="text-right">
                       <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Total Billed</span>
-                      <p className="font-bold text-white text-xs">₹{parseFloat(inv.grandTotal).toFixed(0)}</p>
+                      <p className="font-bold text-white text-xs">Rs {parseFloat(inv.grandTotal).toFixed(0)}</p>
                     </div>
                     {due > 0 && inv.status !== 'CANCELLED' && (
                       <div className="text-right sm:mt-1.5">
                         <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Due Bal.</span>
-                        <p className="font-bold text-amber-400 text-xs">₹{due.toFixed(0)}</p>
+                        <p className="font-bold text-amber-400 text-xs">Rs {due.toFixed(0)}</p>
                       </div>
                     )}
                   </div>
@@ -846,9 +846,9 @@ export default function BillingClient({
                       <div key={item.id} className="py-2.5 flex justify-between items-start">
                         <div className="max-w-[180px]">
                           <p className="font-bold text-slate-200">{item.description}</p>
-                          <span className="text-[10px] text-slate-500 font-medium">Qty: {item.quantity} • Unit: ₹{parseFloat(item.unitPrice).toFixed(0)}</span>
+                          <span className="text-[10px] text-slate-500 font-medium">Qty: {item.quantity} • Unit: Rs {parseFloat(item.unitPrice).toFixed(0)}</span>
                         </div>
-                        <span className="font-bold text-white">₹{parseFloat(item.totalPrice).toFixed(0)}</span>
+                        <span className="font-bold text-white">Rs {parseFloat(item.totalPrice).toFixed(0)}</span>
                       </div>
                     ))}
                   </div>
@@ -857,32 +857,32 @@ export default function BillingClient({
                   <div className="bg-slate-900/40 p-4 border border-slate-900 rounded-xl space-y-2 text-xs">
                     <div className="flex justify-between text-slate-450">
                       <span>Subtotal</span>
-                      <span>₹{parseFloat(selectedInvoice.subtotal).toFixed(0)}</span>
+                      <span>Rs {parseFloat(selectedInvoice.subtotal).toFixed(0)}</span>
                     </div>
                     {parseFloat(selectedInvoice.discount) > 0 && (
                       <div className="flex justify-between text-slate-450">
                         <span>Discount</span>
-                        <span className="text-emerald-400">-₹{parseFloat(selectedInvoice.discount).toFixed(0)}</span>
+                        <span className="text-emerald-400">-Rs {parseFloat(selectedInvoice.discount).toFixed(0)}</span>
                       </div>
                     )}
                     {parseFloat(selectedInvoice.taxAmount) > 0 && (
                       <div className="flex justify-between text-slate-450">
                         <span>Tax ({parseFloat(selectedInvoice.taxRate)}%)</span>
-                        <span>₹{parseFloat(selectedInvoice.taxAmount).toFixed(0)}</span>
+                        <span>Rs {parseFloat(selectedInvoice.taxAmount).toFixed(0)}</span>
                       </div>
                     )}
                     <div className="flex justify-between border-t border-slate-900 pt-2 font-bold text-white">
                       <span>Grand Total</span>
-                      <span>₹{parseFloat(selectedInvoice.grandTotal).toFixed(0)}</span>
+                      <span>Rs {parseFloat(selectedInvoice.grandTotal).toFixed(0)}</span>
                     </div>
                     <div className="flex justify-between text-[11px] text-slate-450">
                       <span>Amount Paid</span>
-                      <span>₹{parseFloat(selectedInvoice.amountPaid).toFixed(0)}</span>
+                      <span>Rs {parseFloat(selectedInvoice.amountPaid).toFixed(0)}</span>
                     </div>
                     {parseFloat(selectedInvoice.grandTotal) - parseFloat(selectedInvoice.amountPaid) > 0 && selectedInvoice.status !== 'CANCELLED' && (
                       <div className="flex justify-between text-[11px] font-bold text-amber-400 border-t border-slate-900/50 pt-1">
                         <span>Balance Due</span>
-                        <span>₹{(parseFloat(selectedInvoice.grandTotal) - parseFloat(selectedInvoice.amountPaid)).toFixed(0)}</span>
+                        <span>Rs {(parseFloat(selectedInvoice.grandTotal) - parseFloat(selectedInvoice.amountPaid)).toFixed(0)}</span>
                       </div>
                     )}
                   </div>
@@ -1036,7 +1036,7 @@ export default function BillingClient({
 
                       {/* Unit Price */}
                       <div className="col-span-6 sm:col-span-2 space-y-1">
-                        <label className="text-[9px] font-bold text-slate-550 uppercase">Unit Price (₹)</label>
+                        <label className="text-[9px] font-bold text-slate-550 uppercase">Unit Price (Rs )</label>
                         <input
                           type="number"
                           required
@@ -1081,7 +1081,7 @@ export default function BillingClient({
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Flat Discount (₹)</label>
+                      <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Flat Discount (Rs )</label>
                       <input
                         type="number"
                         value={discount}
@@ -1102,7 +1102,7 @@ export default function BillingClient({
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Amount Collected (₹)</label>
+                      <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Amount Collected (Rs )</label>
                       <input
                         type="number"
                         value={amountPaid}
@@ -1130,19 +1130,19 @@ export default function BillingClient({
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between text-slate-500">
                       <span>Items Subtotal</span>
-                      <span>₹{calculateInvoiceSubtotal().toFixed(2)}</span>
+                      <span>Rs {calculateInvoiceSubtotal().toFixed(2)}</span>
                     </div>
                     {parseFloat(discount) > 0 && (
                       <div className="flex justify-between text-slate-500">
                         <span>Discount Deductions</span>
-                        <span className="text-emerald-400">-₹{parseFloat(discount).toFixed(2)}</span>
+                        <span className="text-emerald-400">-Rs {parseFloat(discount).toFixed(2)}</span>
                       </div>
                     )}
                     {parseFloat(taxRate) > 0 && (
                       <div className="flex justify-between text-slate-500">
                         <span>Tax Added ({parseFloat(taxRate)}%)</span>
                         <span>
-                          ₹{((Math.max(0, calculateInvoiceSubtotal() - (parseFloat(discount) || 0)) * (parseFloat(taxRate) || 0)) / 100).toFixed(2)}
+                          Rs {((Math.max(0, calculateInvoiceSubtotal() - (parseFloat(discount) || 0)) * (parseFloat(taxRate) || 0)) / 100).toFixed(2)}
                         </span>
                       </div>
                     )}
@@ -1151,12 +1151,12 @@ export default function BillingClient({
                   <div className="border-t border-slate-900 pt-4 flex justify-between items-center mt-4">
                     <div>
                       <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide">Grand Total Due</span>
-                      <span className="text-xl font-bold text-white">₹{calculateInvoiceTotal().toFixed(2)}</span>
+                      <span className="text-xl font-bold text-white">Rs {calculateInvoiceTotal().toFixed(2)}</span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide">Pending Due Balance</span>
                       <span className="text-sm font-bold text-amber-400">
-                        ₹{Math.max(0, calculateInvoiceTotal() - (parseFloat(amountPaid) || 0)).toFixed(2)}
+                        Rs {Math.max(0, calculateInvoiceTotal() - (parseFloat(amountPaid) || 0)).toFixed(2)}
                       </span>
                     </div>
                   </div>

@@ -254,8 +254,8 @@ export default function ReportsClient({
                             <span className="text-[10px] text-slate-500 block font-mono">{inv.customerMobile}</span>
                           </div>
                         </td>
-                        <td className="p-4 font-bold text-white">₹{inv.grandTotal.toFixed(0)}</td>
-                        <td className="p-4 font-bold text-slate-350">₹{inv.amountPaid.toFixed(0)}</td>
+                        <td className="p-4 font-bold text-white">Rs {inv.grandTotal.toFixed(0)}</td>
+                        <td className="p-4 font-bold text-slate-350">Rs {inv.amountPaid.toFixed(0)}</td>
                         <td className="p-4">
                           <span className={`px-2 py-0.5 rounded text-[8px] font-bold tracking-wider border ${
                             inv.status === 'PAID'

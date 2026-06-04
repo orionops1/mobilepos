@@ -179,6 +179,7 @@ export default function SettingsClient({ initialSettings }: SettingsClientProps)
               onChange={(e) => setCurrency(e.target.value)}
               className="w-full pl-10 pr-3 py-2.5 bg-slate-900 border border-slate-850 rounded-xl text-white focus:outline-none"
             >
+              <option value="LKR">LKR (Rs)</option>
               <option value="INR">INR (₹)</option>
               <option value="USD">USD ($)</option>
               <option value="EUR">EUR (€)</option>

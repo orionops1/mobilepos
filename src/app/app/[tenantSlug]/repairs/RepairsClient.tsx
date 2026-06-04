@@ -368,12 +368,12 @@ export default function RepairsClient({
                   <div className="flex md:flex-col justify-between items-end border-t md:border-t-0 border-slate-900 pt-3 md:pt-0">
                     <div className="text-right">
                       <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Est. Cost</span>
-                      <p className="font-bold text-white text-xs">₹{parseFloat(job.estimatedCost).toFixed(0)}</p>
+                      <p className="font-bold text-white text-xs">Rs {parseFloat(job.estimatedCost).toFixed(0)}</p>
                     </div>
                     <div className="text-right md:mt-2">
                       <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Due Bal.</span>
                       <p className={`font-bold text-xs ${due > 0 ? 'text-amber-400' : 'text-slate-400'}`}>
-                        ₹{due.toFixed(0)}
+                        Rs {due.toFixed(0)}
                       </p>
                     </div>
                   </div>
@@ -516,11 +516,11 @@ export default function RepairsClient({
                 <div className="flex justify-between items-center bg-slate-900/30 border border-slate-900 p-3 rounded-xl">
                   <div>
                     <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide">Total Estimated</span>
-                    <span className="font-bold text-white">₹{parseFloat(selectedJob.estimatedCost).toFixed(0)}</span>
+                    <span className="font-bold text-white">Rs {parseFloat(selectedJob.estimatedCost).toFixed(0)}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide">Advance Paid</span>
-                    <span className="font-bold text-emerald-400">₹{parseFloat(selectedJob.advancePayment).toFixed(0)}</span>
+                    <span className="font-bold text-emerald-400">Rs {parseFloat(selectedJob.advancePayment).toFixed(0)}</span>
                   </div>
                   {/* Bill Now button if status is READY */}
                   {selectedJob.status === 'READY' && (
@@ -701,7 +701,7 @@ export default function RepairsClient({
               {/* Estimate ledger, Assignment, Delivery */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-slate-900 pt-4">
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Est. Repair Cost (₹)</label>
+                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Est. Repair Cost (Rs )</label>
                   <input
                     type="number"
                     value={estimatedCost}
@@ -710,7 +710,7 @@ export default function RepairsClient({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Advance Paid (₹)</label>
+                  <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Advance Paid (Rs )</label>
                   <input
                     type="number"
                     value={advancePayment}
