@@ -1,0 +1,229 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  CASHIER
+  TECHNICIAN
+}
+
+enum JobStatus {
+  RECEIVED
+  DIAGNOSING
+  WAITING_PARTS
+  REPAIRING
+  READY
+  DELIVERED
+}
+
+enum InvoiceStatus {
+  PAID
+  PARTIAL
+  UNPAID
+  CANCELLED
+}
+
+enum StockTransactionType {
+  STOCK_IN
+  STOCK_OUT
+}
+
+model Tenant {
+  id           String        @id @default(uuid())
+  name         String
+  slug         String        @unique
+  logoUrl      String?
+  address      String?
+  phone        String?
+  email        String?
+  website      String?
+  taxNumber    String?       // GST/VAT Number
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  
+  // Settings
+  currency     String        @default("INR")
+  taxRate      Decimal       @default(0.00) @db.Decimal(5, 2)
+  qrCodeData   String?       // Payment UPI ID or QR details
+  
+  // Relations
+  users        User[]
+  customers    Customer[]
+  jobCards     JobCard[]
+  invoices     Invoice[]
+  inventory    InventoryItem[]
+  auditLogs    AuditLog[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(TECHNICIAN)
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  jobCards  JobCard[] @relation("TechnicianJobs")
+  logs      AuditLog[]
+}
+
+model Customer {
+  id              String    @id @default(uuid())
+  name            String
+  mobile          String
+  alternateMobile String?
+  email           String?
+  address         String?
+  notes           String?
+  tenantId        String
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  jobCards        JobCard[]
+  invoices        Invoice[]
+  
+  @@unique([tenantId, mobile])
+}
+
+model JobCard {
+  id              String    @id @default(uuid())
+  jobNo           String    // e.g. JOB-1001
+  tenantId        String
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerId      String
+  customer        Customer  @relation(fields: [customerId], references: [id])
+  
+  // Device Details
+  brand           String
+  model           String
+  imei1           String?
+  imei2           String?
+  color           String?
+  storage         String?
+  
+  // Intake Details
+  issueDescription   String
+  physicalCondition  String
+  accessoriesReceived String?
+  estimatedCost      Decimal   @db.Decimal(10, 2)
+  advancePayment     Decimal   @default(0.00) @db.Decimal(10, 2)
+  expectedDelivery   DateTime?
+  technicianNotes    String?
+  
+  // Status & Assignment
+  status             JobStatus @default(RECEIVED)
+  technicianId       String?
+  technician         User?     @relation("TechnicianJobs", fields: [technicianId], references: [id])
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  invoices           Invoice[]
+  
+  @@unique([tenantId, jobNo])
+}
+
+model InventoryItem {
+  id           String        @id @default(uuid())
+  name         String        // e.g. "iPhone 13 LCD Screen"
+  sku          String?
+  category     String        // LCD Screen, Battery, charging port, etc.
+  quantity     Int           @default(0)
+  minStockLevel Int          @default(5)
+  purchaseCost Decimal       @db.Decimal(10, 2)
+  sellingPrice Decimal       @db.Decimal(10, 2)
+  supplierName String?
+  supplierContact String?
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  transactions StockTransaction[]
+  invoiceItems InvoiceItem[]
+  
+  @@unique([tenantId, sku])
+}
+
+model StockTransaction {
+  id             String               @id @default(uuid())
+  itemId         String
+  item           InventoryItem        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  type           StockTransactionType
+  quantity       Int
+  note           String?
+  userId         String?
+  createdAt      DateTime             @default(now())
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  invoiceNo      String        // e.g. INV-1001
+  tenantId       String
+  tenant         Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerId     String
+  customer       Customer      @relation(fields: [customerId], references: [id])
+  jobCardId      String?
+  jobCard        JobCard?      @relation(fields: [jobCardId], references: [id])
+  
+  // Amounts
+  subtotal       Decimal       @db.Decimal(10, 2)
+  discount       Decimal       @default(0.00) @db.Decimal(10, 2)
+  taxRate        Decimal       @default(0.00) @db.Decimal(5, 2)
+  taxAmount      Decimal       @db.Decimal(10, 2)
+  grandTotal     Decimal       @db.Decimal(10, 2)
+  amountPaid     Decimal       @default(0.00) @db.Decimal(10, 2)
+  status         InvoiceStatus @default(UNPAID)
+  
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  items          InvoiceItem[]
+  editLogs       InvoiceEditLog[]
+
+  @@unique([tenantId, invoiceNo])
+}
+
+model InvoiceItem {
+  id             String         @id @default(uuid())
+  invoiceId      String
+  invoice        Invoice        @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description    String
+  itemId         String?
+  item           InventoryItem? @relation(fields: [itemId], references: [id])
+  quantity       Int            @default(1)
+  unitPrice      Decimal        @db.Decimal(10, 2)
+  totalPrice     Decimal        @db.Decimal(10, 2)
+}
+
+model InvoiceEditLog {
+  id         String   @id @default(uuid())
+  invoiceId  String
+  invoice    Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  changedBy  String
+  details    String
+  createdAt  DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String
+  details    String
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+}
