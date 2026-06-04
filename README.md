@@ -233,10 +233,10 @@ Password: password123
 Navigate to Settings page to customize:
 - Shop name and logo
 - Address and contact info
-- GST/VAT tax number
-- Default tax rate
-- Currency
-- QR code for payments
+- VAT tax number
+- Default tax rate (15% VAT for Sri Lanka)
+- Currency (LKR - Sri Lankan Rupees)
+- QR code for payments (optional)
 
 ### Invoice Templates
 

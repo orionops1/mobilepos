@@ -24,9 +24,9 @@ export default async function DashboardPage() {
 
   // Format currency helper
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-IN', {
+    return new Intl.NumberFormat('en-LK', {
       style: 'currency',
-      currency: 'INR',
+      currency: 'LKR',
       maximumFractionDigits: 0,
     }).format(val)
   }

@@ -49,9 +49,9 @@ model Tenant {
   updatedAt    DateTime      @updatedAt
   
   // Settings
-  currency     String        @default("INR")
+  currency     String        @default("LKR")
   taxRate      Decimal       @default(0.00) @db.Decimal(5, 2)
-  qrCodeData   String?       // Payment UPI ID or QR details
+  qrCodeData   String?       // Payment QR code data (optional)
   
   // Relations
   users        User[]
