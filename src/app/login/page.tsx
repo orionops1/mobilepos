@@ -1,22 +1,34 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { signIn } from 'next-auth/react'
+import React, { useState } from 'react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Lock, Mail, AlertCircle, ArrowRight, Store } from 'lucide-react'
+import { Lock, Mail, AlertCircle, ArrowRight, Store, Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { data: session } = useSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (session?.user) {
+      const tenantSlug = (session.user as any).tenantSlug || 'demo-shop'
+      console.log('✓ User already logged in, redirecting to:', `/app/${tenantSlug}`)
+      router.push(`/app/${tenantSlug}`)
+    }
+  }, [session, router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
+
+    console.log('🔐 Attempting login for:', email)
 
     try {
       const result = await signIn('credentials', {
@@ -25,15 +37,40 @@ export default function LoginPage() {
         password: password,
       })
 
+      console.log('📝 SignIn result:', result)
+
       if (result?.error) {
+        console.error('❌ Login failed:', result.error)
         setError(result.error)
+        setLoading(false)
+      } else if (result?.ok) {
+        console.log('✅ Login successful!')
+        // Wait a moment for session to be set
+        await new Promise(resolve => setTimeout(resolve, 100))
+        
+        // Get session to extract tenant slug
+        const response = await fetch('/api/auth/session')
+        const sessionData = await response.json()
+        
+        console.log('📦 Session data:', sessionData)
+        
+        if (sessionData?.user) {
+          const tenantSlug = sessionData.user.tenantSlug || 'demo-shop'
+          console.log('✓ Redirecting to:', `/app/${tenantSlug}`)
+          router.push(`/app/${tenantSlug}`)
+        } else {
+          console.error('❌ No user in session after login')
+          setError('Login succeeded but session not created. Please try again.')
+          setLoading(false)
+        }
       } else {
-        // Successful login - redirect will happen via useEffect
-        router.refresh()
+        console.error('❌ Unexpected result:', result)
+        setError('An unexpected error occurred. Please try again.')
+        setLoading(false)
       }
-    } catch (err: unknown) {
-      setError('An unexpected error occurred. Please try again.')
-    } finally {
+    } catch (err: any) {
+      console.error('❌ Login exception:', err)
+      setError(err.message || 'An unexpected error occurred. Please try again.')
       setLoading(false)
     }
   }
@@ -46,7 +83,7 @@ export default function LoginPage() {
             <Store className="h-8 w-8 text-indigo-600" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-2">
-            Welcome to Westerngate POS
+            Welcome to Mobile POS
           </h1>
           <p className="text-sm text-gray-600">
             Login to access your mobile repair shop dashboard
@@ -74,7 +111,8 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="e.g. owner@mobilepos.com"
-                className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm"
+                disabled={loading}
+                className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -94,11 +132,12 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm"
+                disabled={loading}
+                className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
             <p className="text-[10px] text-gray-600">
-              Demo: <span className="text-indigo-600 font-semibold">owner@mobilepos.com</span> or <span className="text-indigo-600 font-semibold">manager@mobilepos.com</span> • Pass: <span className="text-indigo-600 font-semibold">password123</span>
+              Demo: <span className="text-indigo-600 font-semibold">owner@mobilepos.com</span> • Pass: <span className="text-indigo-600 font-semibold">password123</span>
             </p>
           </div>
 
@@ -108,7 +147,10 @@ export default function LoginPage() {
             className="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center space-x-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer"
           >
             {loading ? (
-              <div className="h-5 w-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Signing in...</span>
+              </>
             ) : (
               <>
                 <span>Sign In to Dashboard</span>
@@ -132,7 +174,7 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-8 text-center text-xs text-gray-500 z-10">
-        © 2026 Westerngate POS Systems. All rights reserved.
+        © 2026 Mobile POS System. All rights reserved.
       </div>
     </div>
   )
