@@ -105,13 +105,28 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🌐 Deploying to Vercel
 
-### Option 1: Deploy via Vercel Dashboard
+**Before deploying, see [DEPLOYMENT.md](./DEPLOYMENT.md) for complete setup instructions.**
+
+### Quick Deployment Checklist
+
+- [ ] Set `NEXTAUTH_SECRET` in Vercel environment variables
+- [ ] Set `DATABASE_URL` pointing to production PostgreSQL
+- [ ] Set `NEXTAUTH_URL` to your Vercel deployment URL
+- [ ] All environment variables from `.env.example` are configured
+- [ ] Database migrations are applied
+
+### Option 1: Deploy via Vercel Dashboard (Easiest)
 
 1. Push your code to GitHub/GitLab/Bitbucket
 2. Go to [vercel.com](https://vercel.com)
 3. Click "New Project" and import your repository
-4. Add environment variables (see `.env.example`)
-5. Deploy!
+4. **Add environment variables** in Vercel dashboard:
+   ```
+   DATABASE_URL=your-postgresql-url
+   NEXTAUTH_SECRET=generate-with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   NEXTAUTH_URL=https://your-app.vercel.app
+   ```
+5. Click "Deploy"
 
 ### Option 2: Deploy via Vercel CLI
 
@@ -119,35 +134,30 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 # Install Vercel CLI
 npm i -g vercel
 
-# Login
+# Login to your Vercel account
 vercel login
 
-# Deploy
+# Deploy to preview
 vercel
 
 # Deploy to production
 vercel --prod
 ```
 
-### Important Vercel Configuration
+### Important Notes
 
-1. **Set Environment Variables** in Vercel Dashboard:
-   - `DATABASE_URL` - Your PostgreSQL connection string
-   - `NEXTAUTH_SECRET` - Random secret key
-   - `NEXTAUTH_URL` - Your production URL (e.g., https://your-app.vercel.app)
-   - `ENCRYPTION_KEY` - 32-character encryption key
+1. **Database**: Your PostgreSQL must be accessible from Vercel
+   - Use Vercel Postgres, Supabase, Neon, or Railway
+   - Do NOT use localhost
 
-2. **Database Setup**:
-   - Use Vercel Postgres, Supabase, or external PostgreSQL
-   - Run migrations after deployment:
-     ```bash
-     vercel env pull .env.local
-     npx prisma migrate deploy
-     ```
+2. **Environment Variables**: Set in Vercel → Project Settings → Environment Variables
+   - Never commit `.env` files with secrets
+   - Use `.env.example` as a template
 
-3. **Build Command**: `npm run build` (automatically configured)
-
-4. **Output Directory**: `.next` (automatically configured)
+3. **After Deployment**:
+   - Test login with demo credentials
+   - Check Vercel logs if issues occur
+   - See troubleshooting in [DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ## 📁 Project Structure
 

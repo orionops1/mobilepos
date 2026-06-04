@@ -3,6 +3,21 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { db } from '@/lib/db'
 import { verifyPassword } from '@/lib/crypto'
 
+// Validate required environment variables
+const requiredEnvVars = {
+  NEXTAUTH_SECRET: 'JWT signing secret for session tokens',
+}
+
+Object.entries(requiredEnvVars).forEach(([key, description]) => {
+  if (!process.env[key]) {
+    throw new Error(
+      `Missing required environment variable: ${key}\n` +
+      `Description: ${description}\n` +
+      `See .env.example for setup instructions.`
+    )
+  }
+})
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
