@@ -801,7 +801,7 @@ export default function BillingClient({
               </div>
             </div>
 
-            {/* Action buttons print, share */}
+            {/* Action buttons print, share, and quick payment */}
             <div className="grid grid-cols-2 gap-3 text-xs">
               <button
                 onClick={() => setShowPrintModal(true)}
@@ -818,6 +818,70 @@ export default function BillingClient({
                 <span>Share WhatsApp</span>
               </button>
             </div>
+
+            {/* Quick Payment Action - Show for UNPAID or PARTIAL invoices */}
+            {(selectedInvoice.status === 'UNPAID' || selectedInvoice.status === 'PARTIAL') && (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 space-y-3">
+                <div className="flex items-start space-x-3">
+                  <div className="p-2 bg-amber-500/20 rounded-lg">
+                    <AlertCircle className="h-4 w-4 text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-xs font-bold text-amber-400 mb-1">Payment Pending</h4>
+                    <p className="text-[10px] text-slate-400">
+                      Outstanding balance: <span className="font-bold text-amber-400">Rs {(parseFloat(selectedInvoice.grandTotal) - parseFloat(selectedInvoice.amountPaid)).toFixed(0)}</span>
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    if (confirm(`Mark this invoice as PAID and record full payment of Rs ${(parseFloat(selectedInvoice.grandTotal) - parseFloat(selectedInvoice.amountPaid)).toFixed(0)}?`)) {
+                      startTransition(async () => {
+                        try {
+                          await updateInvoice(selectedInvoice.id, {
+                            items: selectedInvoice.items.map((item: any) => ({
+                              description: item.description,
+                              itemId: item.itemId,
+                              quantity: item.quantity,
+                              unitPrice: parseFloat(item.unitPrice)
+                            })),
+                            discount: parseFloat(selectedInvoice.discount),
+                            taxRate: parseFloat(selectedInvoice.taxRate),
+                            amountPaid: parseFloat(selectedInvoice.grandTotal),
+                            status: 'PAID' as InvoiceStatus
+                          })
+                          // Refresh the invoice details
+                          const { getInvoiceById } = await import('@/app/actions/billing')
+                          const updated = await getInvoiceById(selectedInvoice.id)
+                          setSelectedInvoice(updated)
+                          router.refresh()
+                        } catch (err: any) {
+                          alert(err.message || 'Failed to update payment status.')
+                        }
+                      })
+                    }
+                  }}
+                  disabled={isPending}
+                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl flex items-center justify-center space-x-1.5 shadow-lg shadow-emerald-600/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  <span>{isPending ? 'Processing...' : 'Mark as Paid - Collect Balance'}</span>
+                </button>
+              </div>
+            )}
+
+            {/* Success message for PAID invoices */}
+            {selectedInvoice.status === 'PAID' && (
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-center space-x-3 text-xs">
+                <div className="p-2 bg-emerald-500/20 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-emerald-400" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-emerald-400 mb-0.5">Payment Complete</h4>
+                  <p className="text-[10px] text-slate-400">This invoice has been fully paid</p>
+                </div>
+              </div>
+            )}
 
             {/* Customer Details */}
             <div className="space-y-3.5 text-xs border-t border-slate-900 pt-5">
