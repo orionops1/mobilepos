@@ -10,10 +10,10 @@ if (!globalThis.prismaCache) {
 }
 
 export function getPrismaClient(connectionString?: string): PrismaClient {
-  const url = connectionString || process.env.DATABASE_URL
+  const url = connectionString || process.env.POSTGRES_PRISMA_URL
   
   if (!url) {
-    throw new Error('Database connection URL (DATABASE_URL) is not set in environment or tenant metadata.')
+    throw new Error('Database connection URL (POSTGRES_PRISMA_URL) is not set in environment or tenant metadata.')
   }
 
   if (globalThis.prismaCache?.[url]) {
