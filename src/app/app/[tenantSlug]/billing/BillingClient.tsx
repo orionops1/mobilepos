@@ -94,6 +94,7 @@ export default function BillingClient({
   const [showEditModal, setShowEditModal] = useState(false)
   const [showPrintModal, setShowPrintModal] = useState(false)
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false)
+  const [showQuickAddCustomer, setShowQuickAddCustomer] = useState(false)
 
   // Printer Config
   const [printPaperSize, setPrintPaperSize] = useState<'A4' | '80mm' | '58mm'>('A4')
@@ -109,6 +110,14 @@ export default function BillingClient({
   const [amountPaid, setAmountPaid] = useState('0')
   const [invoiceStatus, setInvoiceStatus] = useState<InvoiceStatus>('UNPAID')
   const [creatorError, setCreatorError] = useState<string | null>(null)
+  
+  // Quick Customer Creator Form state
+  const [quickCustomerName, setQuickCustomerName] = useState('')
+  const [quickCustomerMobile, setQuickCustomerMobile] = useState('')
+  const [quickCustomerEmail, setQuickCustomerEmail] = useState('')
+  const [quickCustomerAddress, setQuickCustomerAddress] = useState('')
+  const [quickCustomerError, setQuickCustomerError] = useState<string | null>(null)
+  const [customersList, setCustomersList] = useState(customers)
 
   // Pre-fill fields if linkJobId exists (billing repair card)
   useEffect(() => {
@@ -256,6 +265,56 @@ export default function BillingClient({
       next[idx] = { ...next[idx], [field]: value }
     }
     setInvoiceItems(next)
+  }
+
+  // Quick Add Customer Action
+  const handleQuickAddCustomer = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setQuickCustomerError(null)
+
+    if (!quickCustomerName.trim()) {
+      setQuickCustomerError('Customer name is required.')
+      return
+    }
+
+    if (!quickCustomerMobile.trim()) {
+      setQuickCustomerError('Mobile number is required.')
+      return
+    }
+
+    startTransition(async () => {
+      try {
+        const { createCustomer } = await import('@/app/actions/customers')
+        const newCustomer = await createCustomer({
+          name: quickCustomerName.trim(),
+          mobile: quickCustomerMobile.trim(),
+          email: quickCustomerEmail.trim() || undefined,
+          address: quickCustomerAddress.trim() || undefined
+        })
+        
+        // Add to local customers list
+        const updatedCustomersList = [...customersList, {
+          id: newCustomer.id,
+          name: newCustomer.name,
+          mobile: newCustomer.mobile
+        }]
+        setCustomersList(updatedCustomersList)
+        
+        // Auto-select the newly created customer
+        setCustomerId(newCustomer.id)
+        
+        // Reset quick form
+        setQuickCustomerName('')
+        setQuickCustomerMobile('')
+        setQuickCustomerEmail('')
+        setQuickCustomerAddress('')
+        setShowQuickAddCustomer(false)
+        
+        router.refresh()
+      } catch (err: any) {
+        setQuickCustomerError(err.message || 'Failed to create customer.')
+      }
+    })
   }
 
   // Create Invoice Action
@@ -1014,41 +1073,125 @@ export default function BillingClient({
 
             <form onSubmit={showAddModal ? handleCreateInvoice : handleUpdateInvoice} className="space-y-4 text-xs">
               {showAddModal && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-900 pb-4">
-                  {/* Customer Selector */}
-                  <div className="space-y-1.5">
-                    <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Billed Client *</label>
-                    <select
-                      required
-                      value={customerId}
-                      onChange={(e) => setCustomerId(e.target.value)}
-                      className="w-full p-3 bg-slate-900 border border-slate-850 rounded-xl text-white focus:outline-none"
-                    >
-                      <option value="">Select Customer...</option>
-                      {customers.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} ({c.mobile})
-                        </option>
-                      ))}
-                    </select>
+                <div className="space-y-4 border-b border-slate-900 pb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Customer Selector */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center">
+                        <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Billed Client *</label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowQuickAddCustomer(!showQuickAddCustomer)
+                            setQuickCustomerError(null)
+                          }}
+                          className="text-[10px] text-indigo-400 font-bold hover:underline flex items-center space-x-1"
+                        >
+                          <PlusCircle className="h-3 w-3" />
+                          <span>{showQuickAddCustomer ? 'Hide Form' : 'Quick Add'}</span>
+                        </button>
+                      </div>
+                      <select
+                        required
+                        value={customerId}
+                        onChange={(e) => setCustomerId(e.target.value)}
+                        className="w-full p-3 bg-slate-900 border border-slate-850 rounded-xl text-white focus:outline-none"
+                      >
+                        <option value="">Select Customer...</option>
+                        {customersList.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} ({c.mobile})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Ready Repairs link Selector */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Link Completed Repair Job</label>
+                      <select
+                        value={jobCardId}
+                        onChange={(e) => handleLinkJobCardChange(e.target.value)}
+                        className="w-full p-3 bg-slate-900 border border-slate-850 rounded-xl text-white focus:outline-none"
+                      >
+                        <option value="">No linked repair job card</option>
+                        {readyRepairs.map((job) => (
+                          <option key={job.id} value={job.id}>
+                            {job.jobNo} - {job.brand} {job.model} ({job.customer.name})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
-                  {/* Ready Repairs link Selector */}
-                  <div className="space-y-1.5">
-                    <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">Link Completed Repair Job</label>
-                    <select
-                      value={jobCardId}
-                      onChange={(e) => handleLinkJobCardChange(e.target.value)}
-                      className="w-full p-3 bg-slate-900 border border-slate-850 rounded-xl text-white focus:outline-none"
-                    >
-                      <option value="">No linked repair job card</option>
-                      {readyRepairs.map((job) => (
-                        <option key={job.id} value={job.id}>
-                          {job.jobNo} - {job.brand} {job.model} ({job.customer.name})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Quick Add Customer Form */}
+                  {showQuickAddCustomer && (
+                    <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center space-x-2 pb-2 border-b border-indigo-500/20">
+                        <User className="h-4 w-4 text-indigo-400" />
+                        <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Quick Add New Customer</h4>
+                      </div>
+
+                      {quickCustomerError && (
+                        <div className="p-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] rounded-lg">
+                          {quickCustomerError}
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-semibold text-slate-450 uppercase">Name *</label>
+                          <input
+                            type="text"
+                            value={quickCustomerName}
+                            onChange={(e) => setQuickCustomerName(e.target.value)}
+                            placeholder="Customer Name"
+                            className="w-full p-2.5 bg-slate-900 border border-slate-850 rounded-lg text-white text-xs focus:outline-none"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-semibold text-slate-450 uppercase">Mobile *</label>
+                          <input
+                            type="text"
+                            value={quickCustomerMobile}
+                            onChange={(e) => setQuickCustomerMobile(e.target.value)}
+                            placeholder="+94771234567"
+                            className="w-full p-2.5 bg-slate-900 border border-slate-850 rounded-lg text-white text-xs focus:outline-none"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-semibold text-slate-450 uppercase">Email (Optional)</label>
+                          <input
+                            type="email"
+                            value={quickCustomerEmail}
+                            onChange={(e) => setQuickCustomerEmail(e.target.value)}
+                            placeholder="email@example.lk"
+                            className="w-full p-2.5 bg-slate-900 border border-slate-850 rounded-lg text-white text-xs focus:outline-none"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-semibold text-slate-450 uppercase">Address (Optional)</label>
+                          <input
+                            type="text"
+                            value={quickCustomerAddress}
+                            onChange={(e) => setQuickCustomerAddress(e.target.value)}
+                            placeholder="Colombo, Sri Lanka"
+                            className="w-full p-2.5 bg-slate-900 border border-slate-850 rounded-lg text-white text-xs focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleQuickAddCustomer}
+                        disabled={isPending}
+                        className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg flex items-center justify-center space-x-1.5 shadow-lg shadow-indigo-600/10 cursor-pointer disabled:opacity-50 text-xs"
+                      >
+                        <PlusCircle className="h-4 w-4" />
+                        <span>{isPending ? 'Creating Customer...' : 'Create Customer & Select'}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
