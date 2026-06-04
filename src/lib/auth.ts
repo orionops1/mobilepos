@@ -10,33 +10,23 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
-        tenantSlug: { label: 'Tenant Slug', type: 'text' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password || !credentials?.tenantSlug) {
-          throw new Error('Please enter email, password and shop slug.')
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Please enter email and password.')
         }
 
-        // 1. Verify tenant slug exists
-        const tenant = await db.tenant.findUnique({
-          where: { slug: credentials.tenantSlug.toLowerCase() },
-        })
-
-        if (!tenant) {
-          throw new Error('Shop slug not found.')
-        }
-
-        // 2. Find user in the tenant database context
+        // Find user by email
         const user = await db.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email.toLowerCase() },
           include: { tenant: true },
         })
 
-        if (!user || user.tenantId !== tenant.id) {
-          throw new Error('Invalid email or password for this shop.')
+        if (!user) {
+          throw new Error('Invalid email or password.')
         }
 
-        // 3. Verify password
+        // Verify password
         const isValid = verifyPassword(credentials.password, user.password)
         if (!isValid) {
           throw new Error('Invalid email or password.')
