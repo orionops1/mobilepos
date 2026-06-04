@@ -35,6 +35,55 @@ export function getPrismaClient(connectionString?: string): PrismaClient {
   return client
 }
 
-// Default client (Control Plane / Logical multi-tenant DB)
-export const db = getPrismaClient()
+// Lazy initialization to avoid database connection during build time
+let cachedDb: PrismaClient | null = null
+
+export function getDb(): PrismaClient {
+  if (!cachedDb) {
+    cachedDb = getPrismaClient()
+  }
+  return cachedDb
+}
+
+// Default export for backward compatibility
+export const db = {
+  get user() {
+    return getDb().user
+  },
+  get tenant() {
+    return getDb().tenant
+  },
+  get invoice() {
+    return getDb().invoice
+  },
+  get invoiceItem() {
+    return getDb().invoiceItem
+  },
+  get product() {
+    return getDb().product
+  },
+  get customer() {
+    return getDb().customer
+  },
+  get stock() {
+    return getDb().stock
+  },
+  get stockTransaction() {
+    return getDb().stockTransaction
+  },
+  get repairJob() {
+    return getDb().repairJob
+  },
+  get report() {
+    return getDb().report
+  },
+  $connect() {
+    return getDb().$connect()
+  },
+  $disconnect() {
+    return getDb().$disconnect()
+  },
+  $transaction: (...args: any[]) => getDb().$transaction(...args),
+} as PrismaClient
+
 export default db
