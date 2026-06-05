@@ -12,10 +12,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        console.log('🔐 Login attempt for:', credentials?.email)
-        
         if (!credentials?.email || !credentials?.password) {
-          console.error('❌ Missing credentials')
           throw new Error('Please enter email and password.')
         }
 
@@ -27,22 +24,15 @@ export const authOptions: NextAuthOptions = {
           })
 
           if (!user) {
-            console.error('❌ User not found:', credentials.email)
             throw new Error('Invalid email or password.')
           }
-
-          console.log('✓ User found:', user.email, '- Role:', user.role)
 
           // Verify password
           const isValid = verifyPassword(credentials.password, user.password)
           
           if (!isValid) {
-            console.error('❌ Invalid password for:', user.email)
             throw new Error('Invalid email or password.')
           }
-
-          console.log('✓ Password verified for:', user.email)
-          console.log('✓ Tenant:', user.tenant.name, '(slug:', user.tenant.slug, ')')
 
           return {
             id: user.id,
@@ -54,7 +44,6 @@ export const authOptions: NextAuthOptions = {
             tenantName: user.tenant.name,
           }
         } catch (error) {
-          console.error('❌ Auth error:', error)
           if (error instanceof Error) {
             throw error
           }
@@ -71,7 +60,6 @@ export const authOptions: NextAuthOptions = {
         token.tenantId = user.tenantId
         token.tenantSlug = user.tenantSlug
         token.tenantName = user.tenantName
-        console.log('✓ JWT created for:', user.email)
       }
       return token
     },
@@ -82,7 +70,6 @@ export const authOptions: NextAuthOptions = {
         session.user.tenantId = token.tenantId as string
         session.user.tenantSlug = token.tenantSlug as string
         session.user.tenantName = token.tenantName as string
-        console.log('✓ Session created for:', session.user.email)
       }
       return session
     },

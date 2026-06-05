@@ -18,7 +18,6 @@ export default function LoginPage() {
   React.useEffect(() => {
     if (session?.user) {
       const tenantSlug = (session.user as any).tenantSlug || 'demo-shop'
-      console.log('✓ User already logged in, redirecting to:', `/app/${tenantSlug}`)
       router.push(`/app/${tenantSlug}`)
     }
   }, [session, router])
@@ -28,8 +27,6 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
 
-    console.log('🔐 Attempting login for:', email)
-
     try {
       const result = await signIn('credentials', {
         redirect: false,
@@ -37,14 +34,10 @@ export default function LoginPage() {
         password: password,
       })
 
-      console.log('📝 SignIn result:', result)
-
       if (result?.error) {
-        console.error('❌ Login failed:', result.error)
         setError(result.error)
         setLoading(false)
       } else if (result?.ok) {
-        console.log('✅ Login successful!')
         // Wait a moment for session to be set
         await new Promise(resolve => setTimeout(resolve, 100))
         
@@ -52,24 +45,18 @@ export default function LoginPage() {
         const response = await fetch('/api/auth/session')
         const sessionData = await response.json()
         
-        console.log('📦 Session data:', sessionData)
-        
         if (sessionData?.user) {
           const tenantSlug = sessionData.user.tenantSlug || 'demo-shop'
-          console.log('✓ Redirecting to:', `/app/${tenantSlug}`)
           router.push(`/app/${tenantSlug}`)
         } else {
-          console.error('❌ No user in session after login')
           setError('Login succeeded but session not created. Please try again.')
           setLoading(false)
         }
       } else {
-        console.error('❌ Unexpected result:', result)
         setError('An unexpected error occurred. Please try again.')
         setLoading(false)
       }
     } catch (err: any) {
-      console.error('❌ Login exception:', err)
       setError(err.message || 'An unexpected error occurred. Please try again.')
       setLoading(false)
     }

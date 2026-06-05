@@ -91,7 +91,6 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error('Registration error:', error)
     return NextResponse.json(
       { error: 'An error occurred during registration.' },
       { status: 500 }

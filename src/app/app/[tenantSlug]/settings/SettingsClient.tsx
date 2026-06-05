@@ -11,7 +11,6 @@ import {
   Mail,
   Globe,
   Percent,
-  QrCode,
   Image,
   DollarSign
 } from 'lucide-react'
@@ -34,7 +33,6 @@ export default function SettingsClient({ initialSettings }: SettingsClientProps)
   const [taxNumber, setTaxNumber] = useState(initialSettings?.taxNumber || '')
   const [currency, setCurrency] = useState(initialSettings?.currency || 'INR')
   const [taxRate, setTaxRate] = useState(initialSettings?.taxRate ? initialSettings.taxRate.toString() : '0')
-  const [qrCodeData, setQrCodeData] = useState(initialSettings?.qrCodeData || '')
   const [logoUrl, setLogoUrl] = useState(initialSettings?.logoUrl || '')
   
   const [success, setSuccess] = useState(false)
@@ -56,7 +54,6 @@ export default function SettingsClient({ initialSettings }: SettingsClientProps)
           taxNumber,
           currency,
           taxRate: parseFloat(taxRate) || 0,
-          qrCodeData,
           logoUrl
         })
         setSuccess(true)
@@ -216,22 +213,6 @@ export default function SettingsClient({ initialSettings }: SettingsClientProps)
             />
           </div>
           <p className="text-[10px] text-slate-550">Provide an absolute image link. It will automatically load in invoice layouts.</p>
-        </div>
-
-        {/* UPI QR Code Data */}
-        <div className="space-y-1.5 col-span-2">
-          <label className="font-semibold text-slate-450 uppercase tracking-wider text-[10px]">UPI QR code details (India / UPI payments)</label>
-          <div className="relative">
-            <QrCode className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
-            <input
-              type="text"
-              value={qrCodeData}
-              onChange={(e) => setQrCodeData(e.target.value)}
-              placeholder="e.g. upi://pay?pa=shopupi@ybl&pn=Shop%20Name"
-              className="w-full pl-10 pr-3 py-2.5 bg-slate-900 border border-slate-850 rounded-xl text-white focus:outline-none font-mono"
-            />
-          </div>
-          <p className="text-[10px] text-slate-550">UPI deep link payload. If present, it will generate scan-to-pay QR codes in printed bills.</p>
         </div>
       </div>
 
