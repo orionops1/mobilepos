@@ -12,10 +12,8 @@ const requiredEnvVars = [
   'NEXTAUTH_URL',
 ] as const
 
-const optionalEnvVars = [
-  'APP_URL',
-  'NODE_ENV',
-] as const
+// Optional environment variables for reference
+// const optionalEnvVars = ['APP_URL', 'NODE_ENV'] as const
 
 interface EnvValidationResult {
   valid: boolean

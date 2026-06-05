@@ -17,7 +17,7 @@ export default function LoginPage() {
   // Redirect if already logged in
   React.useEffect(() => {
     if (session?.user) {
-      const tenantSlug = (session.user as any).tenantSlug || 'demo-shop'
+      const tenantSlug = (session.user as { tenantSlug?: string }).tenantSlug || 'demo-shop'
       router.push(`/app/${tenantSlug}`)
     }
   }, [session, router])
@@ -56,8 +56,8 @@ export default function LoginPage() {
         setError('An unexpected error occurred. Please try again.')
         setLoading(false)
       }
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred. Please try again.')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.')
       setLoading(false)
     }
   }

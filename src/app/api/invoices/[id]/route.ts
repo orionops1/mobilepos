@@ -15,9 +15,10 @@ export async function GET(
     }
     
     return NextResponse.json(invoice)
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const error = e as Error
     return NextResponse.json(
-      { error: e.message || 'Unauthorized access.' },
+      { error: error.message || 'Unauthorized access.' },
       { status: 401 }
     )
   }
